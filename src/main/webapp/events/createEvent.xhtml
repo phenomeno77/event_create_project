@@ -1,0 +1,313 @@
+<ui:composition xmlns="http://www.w3c.org/1999/xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:ng="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:p="http://primefaces.org/ui" xmlns:pe="http://primefaces.org/ui/extensions"
+                xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+                template="/WEB-INF/templates/main.xhtml">
+    <ui:define name="content">
+
+
+        <div class="card">
+            <h:form id="form">
+                <p:messages id="growl" escape="false" sticky="true" showDetail="true" closable="true"/>
+                <p:growl id="growl2" showDetail="true" />
+                <p:wizard flowListener="#{eventAddController.onFlowProcess}">
+                    <!--  ++++++++++++++++++++++++++++++++++++++++++++++++++++ TAB TO ADD EVENT NAME ++++++++++++++++++++++++++++++++++++++++++++++++++++  -->
+                    <!--  ++++++++++++++++++++++++++++++++++++++++++++++++++++ TAB TO ADD EVENT NAME ++++++++++++++++++++++++++++++++++++++++++++++++++++  -->
+
+
+                    <p:tab id="eventTitle" title="Event Title">
+                        <p:panel header="Event Title">
+                            <p:messages/>
+                            <h:panelGrid columns="2" columnClasses="label, value">
+                                <h:outputText value="Event Title: *"/>
+                                <p:inputText value="#{eventAddController.event.eventName}" required="true" label="Event Title" validatorMessage="Enter as Minimum 4 letters." requiredMessage="Please enter an Event Title.">
+                                    <f:validateLength minimum="4"/>
+                                </p:inputText>
+                            </h:panelGrid>
+                        </p:panel>
+                    </p:tab>
+
+                    <!--  ++++++++++++++++++++++++++++++++++++++++++++++++++++ TAB TO ADD TIMESLOTS ++++++++++++++++++++++++++++++++++++++++++++++++++++  -->
+                    <!--  ++++++++++++++++++++++++++++++++++++++++++++++++++++ TAB TO ADD TIMESLOTS ++++++++++++++++++++++++++++++++++++++++++++++++++++  -->
+
+                    <p:tab id="dateTimeslots" title="Date and Timeslots">
+                        <p:messages/>
+
+                        <p:panel header="Choose Dates and Time Slots" columns="2" id="timeslotsDays" cellpadding="5" styleClass="outerpanelgrid">
+
+                                <p:outputLabel value="Select Dates"/>
+                                <p:datePicker required="true" id="days" selectionMode="multiple"
+                                              mindate="#{eventAddController.minDate}"
+                                              placeholder="           Click Here"
+                                              value="#{eventAddController.selectedDays}" readonlyInput="true"
+                                                requiredMessage="Please Select at Least one Date."/>
+
+
+                        <p:panel id="timeslotsTimes" columns="4" styleClass="innerpanelgrid ">
+                                <p:outputLabel value="Select Time"/>
+                            <br/><br/>
+
+                            <h:panelGrid columns="4" id="timers">
+                            <h:outputText value="From: "/>
+                            <pe:timePicker id="timeFrom" value="#{eventAddController.selectedTimeslotList[0].startTime}" mode="popup"
+                                           maxHour="#{eventAddController.maxHour[0]}" maxMinute="#{eventAddController.maxMinute[0]}"
+                            >
+                                <p:ajax event="close" listener="#{eventAddController.timeSelectListenerFrom}" update="timeslotsTimes :form:growl2"/>
+                                <f:attribute name="index" value="0" />
+                            </pe:timePicker>
+
+                            <h:outputText value="To: "/>
+                            <pe:timePicker id="timeTo" value="#{eventAddController.selectedTimeslotList[0].endTime}" mode="popup"
+                                           minHour="#{eventAddController.minHour[0]}" minMinute="#{eventAddController.minMinute[0]}"
+                            >
+                                <p:ajax event="close" listener="#{eventAddController.timeSelectListenerTo}" update="timeslotsTimes :form:growl2"/>
+                                <f:attribute name="index" value="0" />
+                            </pe:timePicker>
+                            <br/>
+                        </h:panelGrid>
+
+                            <h:panelGrid columns="4" id="timers2">
+                                <h:outputText value="From: "/>
+                                <pe:timePicker id="timeFrom2" value="#{eventAddController.selectedTimeslotList[1].startTime}" mode="popup"
+                                               maxHour="#{eventAddController.maxHour[1]}" maxMinute="#{eventAddController.maxMinute[1]}"
+                                >
+                                    <p:ajax event="close" listener="#{eventAddController.timeSelectListenerFrom}" update="timeslotsTimes :form:growl2"/>
+                                    <f:attribute name="index" value="1" />
+                                </pe:timePicker>
+
+                                <h:outputText value="To: "/>
+                                <pe:timePicker id="timeTo2" value="#{eventAddController.selectedTimeslotList[1].endTime}" mode="popup"
+                                               minHour="#{eventAddController.minHour[1]}" minMinute="#{eventAddController.minMinute[1]}"
+                                >
+                                    <p:ajax event="close" listener="#{eventAddController.timeSelectListenerTo}" update="timeslotsTimes :form:growl2"/>
+                                    <f:attribute name="index" value="1" />
+                                </pe:timePicker>
+                                <br/>
+                            </h:panelGrid>
+
+                            <h:panelGrid columns="4" id="timers3">
+                                <h:outputText value="From: "/>
+                                <pe:timePicker id="timeFrom3" value="#{eventAddController.selectedTimeslotList[2].startTime}" mode="popup"
+                                               maxHour="#{eventAddController.maxHour[2]}" maxMinute="#{eventAddController.maxMinute[2]}"
+                                >
+                                    <p:ajax event="close" listener="#{eventAddController.timeSelectListenerFrom}" update="timeslotsTimes :form:growl2"/>
+                                    <f:attribute name="index" value="2" />
+                                </pe:timePicker>
+
+                                <h:outputText value="To: "/>
+                                <pe:timePicker id="timeTo3" value="#{eventAddController.selectedTimeslotList[2].endTime}" mode="popup"
+                                               minHour="#{eventAddController.minHour[2]}" minMinute="#{eventAddController.minMinute[2]}"
+                                >
+                                    <p:ajax event="close" listener="#{eventAddController.timeSelectListenerTo}" update="timeslotsTimes :form:growl2"/>
+                                    <f:attribute name="index" value="2" />
+                                </pe:timePicker>
+                                <br/>
+
+                            </h:panelGrid>
+                        </p:panel>
+
+                        </p:panel>
+                    </p:tab>
+
+                    <!--  ++++++++++++++++++++++++++++++++++++++++++++++++++++ TAB TO ADD LOCATIONS ++++++++++++++++++++++++++++++++++++++++++++++++++++  -->
+                    <!--  ++++++++++++++++++++++++++++++++++++++++++++++++++++ TAB TO ADD LOCATIONS ++++++++++++++++++++++++++++++++++++++++++++++++++++  -->
+
+                    <p:tab id="locations" title="Locations">
+                        <p:panel header="Select Locations">
+
+                            <p:messages id="selectedLocationsMessages" escape="false" sticky="false" closable="true"  showDetail="true"/>
+
+                            <p:dataTable id="locationsTable" var="locations"
+                                         value="#{locationListController.locationsForEvent}" widgetVar="locations"
+                                         emptyMessage="No locations found!" selection="#{eventAddController.locationsSelected}"
+                                         rowKey="#{locations.locationId}" rowSelectMode="add" paginator="true"
+                                         rows="4" paginatorPosition="bottom"
+                            >
+
+                                <p:ajax event="rowSelect" listener="#{eventAddController.onRowSelectUnselect}"  update=":form:locationsTable :form:growl"/>
+                                <p:ajax event="rowUnselect" listener="#{eventAddController.onRowSelectUnselect}"  update=":form:locationsTable :form:growl"/>
+                                <p:ajax event="rowSelectCheckbox" listener="#{eventAddController.onRowSelectUnselect}"  update=":form:locationsTable :form:growl"/>
+                                <p:ajax event="rowUnselectCheckbox" listener="#{eventAddController.onRowSelectUnselect}"  update=":form:locationsTable :form:growl"/>
+
+
+                                <p:column selectionMode="multiple"/>
+
+                                <p:column headerText="Name" sortBy="#{locations.locationName}" filterBy="#{locations.locationName}"  filterMatchMode="contains">
+                                    <h:outputText value="#{locations.locationName}"/>
+                                </p:column>
+
+                                <p:column headerText="Address" sortBy="#{locations.street} #{locations.houseNumber} #{locations.zipCode} #{locations.city}"
+                                          filterBy="#{locations.street} #{locations.houseNumber} #{locations.zipCode} #{locations.city}"  filterMatchMode="contains">
+                                    <h:outputText id="gaddr" class="location__address"
+                                                  value="#{locations.street} #{locations.houseNumber},  #{locations.zipCode} #{locations.city}"/>
+                                </p:column>
+
+                                <p:column headerText="Food-Tags" filterBy="#{locations.locationTags}"  filterMatchMode="contains">
+                                    <ui:repeat var="locationTags" value="#{locations.locationTags}">
+                                        <i class="pi pi-tags"/><h:outputText value="#{locationTags.tagName}" style="white-space:pre;"/>
+                                        <br/>
+                                    </ui:repeat>
+                                </p:column>
+
+                                <p:column headerText="Opening Hours"
+                                          filterBy="#{locationListController.getOpeningHours(locations)}"
+                                          filterMatchMode="contains">
+                                    <ui:repeat  var="openingHr" value="#{locationListController.getOpeningHours(locations)}">
+                                        <h:outputText value="#{openingHr}"
+                                                      style="white-space:pre;">
+                                        </h:outputText>
+                                        <br/>
+                                    </ui:repeat>
+                                </p:column>
+
+                                <p:column id="commonDateTimes" headerText="Common-Valid Timeslots" rendered="#{not empty eventAddController.locationsSelected}">
+                                <h:outputText value="#{eventAddController.formattedDateTime}" rendered="#{eventAddController.locationsSelected.contains(locations)}"/>
+                                </p:column>
+
+
+                                <p:column style="width:12rem;text-align: right" headerText="More Details">
+                                    <p:commandButton update=":form:locationDetails" oncomplete="PF('locationDetails').show()" icon="pi pi-search" title="View Location Details" value="View">
+                                        <f:setPropertyActionListener value="#{locations}" target="#{locationDetailController.location}" />
+                                    </p:commandButton>
+                                </p:column>
+
+                            </p:dataTable>
+
+                            <p:dialog id="locationDetails" header="Details" showEffect="fade" modal="true" widgetVar="locationDetails" responsive="true">
+                                <p:outputPanel id="locationDetailsView" class="ui-fluid" rendered="#{not empty locationDetailController.location}">
+                                    <p:tabView widgetVar="tabview" id="tabview">
+
+                                        <p:tab id="description" title="Location Description">
+                                            <h:panelGrid columns="2">
+                                                <h:outputLabel for="locationDescription" value="Description: " />
+                                                <p:inputTextarea id="locationDescription" value="#{locationDetailController.location.description}" disabled="true"/>
+                                            </h:panelGrid>
+                                        </p:tab>
+
+                                        <p:tab id="menuUrl" title="Link to Menu" >
+                                            <h:outputText  value="No URL to Menu found." rendered="#{locationDetailController.location.menuUrl == null}" />
+                                            <h:panelGrid columns="2" rendered="#{locationDetailController.location.menuUrl != null}">
+                                        <h:outputText  value="Check our Menu here:  " />
+                                                <h:outputLink value="//#{locationDetailController.location.menuUrl}">
+                                                    <h:outputText value=" Menu"/>
+                                                </h:outputLink>
+
+                                            </h:panelGrid>
+                                        </p:tab>
+                                    </p:tabView >
+                                </p:outputPanel>
+                                <f:facet name="footer">
+                                    <p:commandButton value="Close Details" icon="pi pi-times" onclick="PF('locationDetails').hide()" class="ui-button-secondary"/>
+                                </f:facet>
+                            </p:dialog>
+                        </p:panel>
+                    </p:tab>
+
+                    <!--  ++++++++++++++++++++++++++++++++++++++++++++++++++++ TAB TO INVITE USERS ++++++++++++++++++++++++++++++++++++++++++++++++++++  -->
+                    <!--  ++++++++++++++++++++++++++++++++++++++++++++++++++++ TAB TO INVITE USERS ++++++++++++++++++++++++++++++++++++++++++++++++++++  -->
+
+                    <p:tab id="inviteUsers" title="Invite Users">
+                        <p:panel header="Select Users to Invite">
+                            <p:messages id="inviteUserMessages" showDetail="true" closable="true"/>
+                            <p:dataTable id="usersTable" var="user"
+                                         value="#{eventListController.usersExceptCurrent}" widgetVar="usersTable"
+                                         emptyMessage="No users found!" selection="#{eventAddController.usersSelected}"
+                                         rowKey="#{user.id}" rowSelectMode="add" paginator="true"
+                                         rows="8" paginatorPosition="bottom" sortMode="multiple">
+                                <p:column selectionMode="multiple"/>
+                                <p:column headerText="Username" sortBy="#{user.username}" filterBy="#{user.username}" filterMatchMode="contains">
+                                    <h:outputText value="#{user.username}"/>
+                                </p:column>
+                                <p:column headerText="First Name" sortBy="#{user.firstName}" filterBy="#{user.firstName}" filterMatchMode="contains">
+                                    <h:outputText value="#{user.firstName}"/>
+                                </p:column>
+                                <p:column headerText="Last Name" sortBy="#{user.lastName}" filterBy="#{user.lastName}" filterMatchMode="contains">
+                                    <h:outputText value="#{user.lastName} "/>
+                                </p:column>
+                                <p:column headerText="Email" sortBy="#{user.email}" filterBy="#{user.email}" filterMatchMode="contains">
+                                    <h:outputText value="#{user.email}"/>
+                                </p:column>
+                            </p:dataTable>
+                        </p:panel>
+                    </p:tab>
+
+                 <!--  ++++++++++++++++++++++++++++++++++++++++++++++++++++ TAB TO ENTER EXPIRY DATE ++++++++++++++++++++++++++++++++++++++++++++++++++++  -->
+                    <!--  ++++++++++++++++++++++++++++++++++++++++++++++++++++ TAB TO ENTER EXPIRY DATE ++++++++++++++++++++++++++++++++++++++++++++++++++++  -->
+
+                    <p:tab id="votingExpiryDate" title="Voting End-Time">
+                        <p:messages/>
+                        <h:panelGrid columns="1">
+                            <p:outputLabel for="dateTime" value="Voting Expiry Date and Time"/>
+                        <p:datePicker id="dateTime" value="#{eventAddController.expiryDateTime}"
+                                      mindate="#{eventAddController.minDateExpiry}"
+                                      maxdate="#{eventAddController.maxExpiryDate}"
+                                      timeInput="true"
+                                      pattern="dd.MM.yyyy"/>
+                        </h:panelGrid>
+                    </p:tab>
+
+                    <!--  ++++++++++++++++++++++++++++++++++++++++++++++++++++ TAB TO SHOW ALL INFOS AND START VOTING EVENT  ++++++++++++++++++++++++++++++++++++++++++++++++++++  -->
+                    <!--  ++++++++++++++++++++++++++++++++++++++++++++++++++++ TAB TO SHOW ALL INFOS AND START VOTING EVENT ++++++++++++++++++++++++++++++++++++++++++++++++++++  -->
+                    <p:tab id="confirm" title="Confirmation">
+                        <p:messages id="confirmationMessage" escape="false" sticky="true" showDetail="true" closable="true"/>
+                        <p:panel header="Confirmation">
+                            <h:panelGrid id="confirmation" columns="3" columnClasses="grid,grid,grid">
+                                <h:panelGrid >
+                                   <p:column>
+                                    <h:outputText value="Event Creator: #{eventAddController.eventCreator.username}"/>
+                                    </p:column>
+
+                                    <p:column >
+                                    <h:outputText value="Event Title: #{eventAddController.event.eventName}"/>
+                                    </p:column>
+                                    <p:column >
+                                        <h:outputText value="Locations: "/>
+                                    <ui:repeat var="locations" value="#{eventAddController.locationsSelected}">
+                                        <h:outputText value="[ #{locations.locationName} ]"/>
+                                    </ui:repeat>
+                                    </p:column>
+
+                                    <p:column >
+                                        <h:outputText value="Timeslots: #{eventAddController.formattedDateTime}"/>
+                                    </p:column>
+
+                                    <p:column >
+                                        <h:outputText value="Invited users: "/>
+                                        <ui:repeat var="users" value="#{eventAddController.usersSelected}">
+                                            <h:outputText value="[#{users.username}] "/>
+                                        </ui:repeat>
+                                    </p:column>
+                                    <p:column >
+                                 <h:outputText id="modelValue" value="Voting Ends at: #{eventAddController.formattedExpiryDateTime}"/>
+                                    </p:column>
+                                </h:panelGrid>
+
+                            </h:panelGrid>
+                            <p:commandButton value="Start Voting Event" update="confirmationMessage" action="#{eventAddController.doSaveEvent}"
+                                             icon="pi pi-send" onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()"  >
+                            </p:commandButton>
+                        </p:panel>
+
+                        <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" header=" Sending E-mail confirmations on progress">
+                            <div class="p-text-center">
+                                <i class="pi pi-spin pi-spinner loading-icon" aria-hidden="true" ></i>
+                            </div>
+                        </p:dialog>
+                    </p:tab>
+                </p:wizard>
+            </h:form>
+            <style type="text/css">
+        .loading-icon {
+       font-size: 3rem;
+       color: var(--primary-color);
+         position:center;
+    }
+</style>
+        </div>
+
+
+    </ui:define>
+</ui:composition>

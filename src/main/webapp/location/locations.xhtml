@@ -1,0 +1,402 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3c.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:th="https://www.thymeleaf.org"
+                xmlns:c="http://java.sun.com/jstl/core"
+                template="/WEB-INF/templates/main.xhtml"
+                uri="http://sargue.net/jsptags/time" prefix="javatime">
+    <head>
+
+        <title>Location</title>
+        
+        
+        
+    </head>
+    
+    
+    <ui:define name ="content">
+    <script type="text/javascript" src="https://maps.google.com/maps/api/js?key=AIzaSyA-xQph38wImMsXL7anVuIPLWC6xac-6kA"></script>
+    <script type="text/javascript">
+    function geocode() {
+			    const locationActions = document.querySelectorAll('.location__btn');
+				
+			    locationActions.forEach(function (action, index) {
+			      console.log(action)
+			    	  action.addEventListener('click', function(event) {
+			    		  let value = '';
+			    		  const parent = event.target.closest('.ui-widget-content');
+			    		  console.log('parent', parent)
+			    		  value = parent.querySelector('.location__address').textContent;
+			    		  console.log('value', value)
+			        
+
+			        PF('geoMap').geocode(value);
+			    	PF('dlg').show();
+			      })
+		    	})
+    }
+    	document.addEventListener("DOMContentLoaded", function() {
+    	 geocode();
+    	})
+ 
+						    
+	</script>
+    
+
+        <h:form id="locationForm" prependId="false" >
+        <p:growl id="growlLocation" sticky="false" showDetail="true" styleClass="ui-button-danger"/>
+        <p:messages/>
+         <p:panel header=" Location" >
+         <f:facet name="actions" >
+         	<p:commandButton style="margin-right: 5px"
+                              onclick="location.href='/location/locations.xhtml'"
+                              icon="pi pi-refresh" title="Refresh"/>
+
+         	<p:button icon="pi pi-plus" value="Location" onclick="location.href='/location/createLocation.xhtml'" />
+
+             <p:commandButton update=":locationForm:locationTags" style="margin-left: 5px"
+                              value="Tags" oncomplete="PF('locationTags').show()"
+                              icon="pi pi-plus" title="Add Tags"/>
+
+             <p:commandButton value="Initialize Test-Locations" style="margin-left: 5px" action="#{autoInitLocations.initializeLocations}"
+                              update="@form">
+                 <p:confirm header="Confirmation" message="By confirming 2 Locations will be automatically initialized." icon="ui-icon-alert" />
+             </p:commandButton>
+
+        </f:facet>
+        
+        <style type="text/css">
+		.grey{
+		   background-color:#d5d5d5!important;
+		   color: #5e5e5e!important;
+
+		 
+			}
+			button > * {
+			  pointer-events: none;
+			}
+		</style>
+
+            <p:dataTable id="locationTable" var="location" value="#{locationListController.locations}" 
+            widgetVar="locationTable"  emptyMessage="There are no Locations listed yet." sortMode="single" rowStyleClass="#{location.active ? '' : 'grey'}" >
+            
+            	
+            	<p:column style="width:2rem">
+               		 <p:rowToggler rendered="#{location.locationStatus != 'Removed'}"/>
+            	</p:column>
+           
+		   
+            
+                <p:column headerText="Name" sortBy="#{location.locationName}" filterBy="#{location.locationName}"  filterMatchMode="contains">
+                	<h:outputText value="#{location.locationName}"/>
+                </p:column>
+                
+
+                <p:column  headerText="Address" id="addr" sortBy="#{location.street} #{location.houseNumber} #{location.zipCode} #{location.city}"
+                           filterBy="#{location.street} #{location.houseNumber} #{location.zipCode} #{location.city}"  filterMatchMode="contains">
+                	<h:outputText id="gaddr" class="location__address" value="#{location.street} #{location.houseNumber},  #{location.zipCode} #{location.city}"/> 
+                	
+                </p:column>
+
+                <p:column headerText="Tags" filterBy="#{location.locationTags}"  filterMatchMode="contains">
+		                <ui:repeat var="tags" value="#{location.locationTags}">
+		                <em class="pi pi-tags"/><h:outputText value="#{tags.tagName}" style="white-space:pre;"/>
+		                <br/>
+		                </ui:repeat>
+                </p:column>
+                
+                <p:column headerText="Status" sortBy="#{location.locationStatus}" filterBy="#{location.locationStatus}"  filterMatchMode="contains">
+                    <h:outputText value="#{location.locationStatus}"/>
+                </p:column>
+                
+                <p:column headerText="Map" >
+                	<p:commandButton id="btn" type="button" class="location__btn" icon="pi pi-globe" value="map" rendered="#{location.locationStatus != 'Removed'}" />
+				</p:column>
+
+                <p:column style="width:100;text-align: right">
+                				
+                
+                    <p:commandButton update=":locationForm:locationEditDialog" oncomplete="PF('locationEditDialog').show()" icon="pi pi-pencil" title="Edit"
+                                        rendered="#{location.locationStatus != 'Removed'}">
+                        <f:setPropertyActionListener value="#{location}" target="#{locationDetailController.location}" />
+                    </p:commandButton>
+
+                    <p:commandButton action="#{locationDetailController.doCloseLocation}" icon="pi pi-ban" title="Close Location" update=":locationForm:locationTable"
+                                     styleClass="ui-button-warning" rendered="#{location.locationStatus == 'Active' and location.locationStatus != 'Removed'}"
+                                     style="margin-left :5px">
+                        <f:setPropertyActionListener value="#{location}" target="#{locationDetailController.location}" />
+                        <p:confirm header="Close Location" message="Are you sure that you want to close that Location? By
+                        Confirming the Location will be set to Closed." icon="ui-icon-alert" />
+                    </p:commandButton>
+
+                    <p:commandButton action="#{locationDetailController.doOpenLocation}" icon="pi pi-check-circle" title="Open Location" update=" :locationForm:locationTable"
+                                     styleClass="ui-button-success" rendered="#{location.locationStatus == 'Closed' and location.locationStatus != 'Removed'}"
+                                     style="margin-left:5px">
+                        <f:setPropertyActionListener value="#{location}" target="#{locationDetailController.location}" />
+                        <p:confirm header="Open Location" message="Are you sure that you want to open that Location? By
+                        Confirming the Location will be set to back to Active." icon="ui-icon-alert" />
+                    </p:commandButton>
+
+                    <p:commandButton action="#{locationDetailController.doRemoveLocation}" icon="pi pi-times" title="Remove" update=":locationForm:locationTable"
+                                     styleClass="ui-button-danger" style="margin-left:5px" rendered="#{location.locationStatus != 'Removed'}">
+                        <f:setPropertyActionListener value="#{location}" target="#{locationDetailController.location}" />
+                        <p:confirm header="Remove Location" message="Are you sure that you want to remove this Location? You cannot undo this operation." icon="ui-icon-alert" />
+                    </p:commandButton>
+
+                    <p:commandButton action="#{locationDetailController.doDeleteLocation}" icon="pi pi-trash" title="Delete" update=":locationForm:locationTable"
+                                     styleClass="ui-button-danger" style="margin-left:5px" rendered="#{location.locationStatus == 'Removed'}">
+                        <f:setPropertyActionListener value="#{location}" target="#{locationDetailController.location}" />
+                        <p:confirm header="Remove Entity" message="Are you sure that you want to completely remove this Location?
+                         The Location will be completely removed from the database.
+                         You cannot undo this operation." icon="ui-icon-alert" />
+                    </p:commandButton>
+
+                </p:column>
+                
+                <p:rowExpansion >
+                
+                
+               <div style="display: inline-block; margin-left: 5%; vertical-align: top;">
+                           <h:outputText value="Opening Hours" style="font-weight:bold" />
+               				<br/>
+                			<ui:repeat  var="openingHr" value="#{locationListController.getOpeningHours(location)}">
+                             <h:outputText value="#{openingHr}"
+                                          style="white-space:pre;">	
+                            </h:outputText>
+                            <br/>
+
+                			</ui:repeat>
+                </div>
+                <div style="display: inline-block; margin-left: 5%; vertical-align: top;">
+                			<h:outputText value="Menu-Link" style="font-weight:bold" />
+                            <br/>
+			                  <h:outputText  value="No URL to Menu found." rendered="#{location.menuUrl == null}" />
+			                  <h:outputLink value="//#{location.menuUrl}" target="_blank" >Menu</h:outputLink>
+
+
+
+               </div>
+                <div style="display: inline-block; vertical-align: top; margin-left: 5%; width: 120px;">
+                            <h:outputText value="Description" style="font-weight:bold"/>
+                            <br/>
+                            <h:outputText value="#{location.description}" style="width: 200px; white-space:normal;display:inline-block;" />
+                            
+                </div>
+                
+                
+       	</p:rowExpansion>
+	
+		</p:dataTable>
+            
+            <!--       MAP DIALOG BOX      -->
+           
+            
+            <p:dialog id="gmapDialog" widgetVar="dlg" width="625" height="400" modal="true">
+            <p:gmap id="geoGmap" widgetVar="geoMap" center="#{locationMapController.centerGeoMap}" zoom="12" type="ROADMAP"
+			                model="#{locationMapController.geoModel}" style="width:100%;height:400px" >
+			            <p:ajax event="geocode" listener="#{locationMapController.onGeocode}" update="@this"/> 
+			        </p:gmap>
+			</p:dialog>
+        	
+            
+            <!--       EDIT FORM      -->
+           
+            
+            <p:dialog header="Edit Location" id="locationEditDialog" widgetVar="locationEditDialog"
+                      modal="true" showEffect="fade"
+                      resizable="true"
+                      hideEffect="fade" responsive="true" width="550">
+                <p:outputPanel id="locationData" rendered="#{not empty locationDetailController.location}" resizable="true">
+                <p:tabView widgetVar="tabview" id="tabview" onTabShow="PF('locationEditDialog').initPosition();" dynamic="true">
+       
+                <!--  ++++++++++++++++++++      TAB GENEREL INFO      ++++++++++++++++++++  -->
+                
+                <p:tab id="tabDetails" title="General" >
+                    <h:panelGrid columns="2">
+                        <p:outputLabel for="locationName" value="Name " />
+                        <p:inputText id="locationName" value="#{locationDetailController.location.locationName}" required="true"/>
+                        
+                        <p:outputLabel for="menu" value="Menu " />
+                        <p:inputText id="menu" value="#{locationDetailController.location.menuUrl}" />
+                        
+                        <p:outputLabel for="description" value="Description " />
+                        <p:inputTextarea rows="5"  id="description" value="#{locationDetailController.location.description}"/>
+
+                    </h:panelGrid>
+                </p:tab>
+
+                    <p:tab id="tabDetails2" title="Food Tags" >
+                        <h:panelGrid columns="1">
+                        <p:outputLabel for="tags" value="Add new Tags / Remove Tags from Location" />
+                        <p:chips id="tags" addOnPaste="true" separator="," value="#{locationDetailController.tags}" style="width:80%"  />
+
+                        <h:outputText value="List with Existing Tags"/>
+                        <p:selectManyMenu id="advanced" value="#{locationDetailController.selectedTags}"
+
+                                          var="tagList" filter="true" filterMatchMode="contains" showCheckbox="true" styleClass="manymenu-advanced">
+                            <f:selectItems value="#{tagsListController.allTags}" var="allTags" itemLabel="#{allTags.tagName}"
+                                           itemValue="#{tags}"/>
+
+                            <p:column>
+                                <span class="pi pi-tags"  style="width: 30px; height: 20px"/>
+                            </p:column>
+
+                            <p:column>
+                                <h:outputText value="#{tagList.tagName}"/>
+                            </p:column>
+                        </p:selectManyMenu>
+                        </h:panelGrid>
+                    </p:tab>
+                
+                <!--  ++++++++++++++++++++      TAB ADDRESSE      ++++++++++++++++++++  -->
+                
+                <p:tab id="tabDetails3" title="Address" >
+                    <h:panelGrid columns="2">
+                        <p:outputLabel for="street" value="Street " />
+                        <p:inputText id="street" value="#{locationDetailController.location.street}" required="true"/>
+                        <p:outputLabel for="housenr" value="House# " />
+                        <p:inputText id="housenr" value="#{locationDetailController.location.houseNumber}" required="true"/>
+                        <p:outputLabel for="plz" value="ZipCode " />
+                        <p:inputText id="plz" value="#{locationDetailController.location.zipCode}" required="true"/>
+                        <p:outputLabel for="city" value="City " />
+                        <p:inputText id="city" value="#{locationDetailController.location.city}" required="true"/>
+                    </h:panelGrid>
+                </p:tab>
+                
+                <!--  ++++++++++++++++++++      TAB OPENING HOURS      ++++++++++++++++++++  -->
+
+
+               <p:tab id="tabDetails4" title="OpeningHours" >
+               <div style="padding-left: 11%"><p:outputLabel style="white-space:pre" value="from - to                   from - to"/></div>
+
+
+
+                 <h:panelGrid columns="2">
+                 <ui:repeat  headerText="from-to" var="hour" varStatus="loop" value="#{locationDetailController.getHour(1)}" >
+                    	 <div>
+
+                            <h:panelGrid columns="2" styleClass="innerpanelgrid" cellpadding="5">
+							<h:outputText value="#{locationDetailController.days[loop.index]}" style="white-space:pre;"/>
+                            <p:inputMask value="#{hour.stringH}" size="12" mask="99:99-99:99"/>
+                            </h:panelGrid>
+
+	                        </div>
+                    </ui:repeat>
+                  
+                    <ui:repeat  headerText="break" var="hour" varStatus="loop" value="#{locationDetailController.getHour(2)}" >
+                    	 <div>
+
+                            <h:panelGrid columns="1" styleClass="innerpanelgrid" cellpadding="5">
+                            <p:inputMask value="#{hour.stringH}" size="12" mask="99:99-99:99"/>
+                            </h:panelGrid>
+
+	                        </div>
+                    </ui:repeat>
+				</h:panelGrid>
+                </p:tab>
+                </p:tabView>
+                <p:separator />
+
+                    <h:panelGrid columns="3">
+                        <p:commandButton id="savebutton"  value="Save" 
+                        	action="#{locationDetailController.doSaveLocation()}"  
+                        	update=":locationForm:locationTable :locationForm:growlLocation "/>
+                        <p:commandButton value="Reload" 
+                        	action="#{locationDetailController.doReloadLocation()}" 
+                        	update=":locationForm:locationData"/>
+                        <p:commandButton value="Abort" onclick="PF('locationEditDialog').hide()" />
+                    </h:panelGrid>
+                    
+                </p:outputPanel>
+            </p:dialog>
+
+             <!-- ++++++++++++++++++++++++++ DIALOG TO ADD AND EDIT FOOD TAGS ++++++++++++++++++++++++++++++++++ -->
+             <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+             <p:dialog header="Food-Tags" id="locationTags" widgetVar="locationTags" modal="true" showEffect="fade" hideEffect="fade"
+                       resizable="true">
+                 <p:tabView widgetVar="tagsTab" id="tagsTab" onTabShow="PF('locationTags').initPosition();" dynamic="true">
+                     <p:tab id="allTags" title="All Tags" >
+                         <p:dataTable id="tagTable" value="#{tagsListController.allTags}" var="tags" style="width:500px;margin-bottom:20px"
+                                      rows="5" paginator="true"
+                                      widgetVar="tags"
+                                      editable="true"
+                         >
+
+                             <p:ajax event="rowEdit" listener="#{tagsDetailController.onRowEdit}" update=":locationForm:growlLocation"/>
+
+                             <p:column headerText="ID" width="25">
+                                 <h:outputText value="#{tags.tagId}"/>
+                             </p:column>
+
+                             <p:column headerText="Tag">
+                                 <p:cellEditor>
+                                     <f:facet name="output">
+                                         <i class="pi pi-tags"/>   <h:outputText value="#{tags.tagName}"/>
+                                     </f:facet>
+                                     <f:facet name="input">
+                                         <p:inputText id="modelInput" value="#{tags.tagName}" style="width:100%"/>
+                                     </f:facet>
+                                 </p:cellEditor>
+                             </p:column>
+
+                             <p:column style="width:100;text-align: right">
+                                 <p:rowEditor editTitle="Edit Tag" cancelTitle="Cancel Edit" saveTitle="Save Tag"/>
+                                 <p:commandButton icon="pi pi-times" styleClass="rounded-button ui-button-danger ui-button-flat"
+                                                  title="Remove" action="#{tagsDetailController.removeTag()}"
+                                                  update="tagTable">
+                                     <f:setPropertyActionListener value="#{tags}" target="#{tagsDetailController.tags}" />
+                                     <p:confirm header="Remove Tag" message="Are you sure that you want to remove that Tag?
+                                 You cannot undo that operation." icon="ui-icon-alert" />
+                                 </p:commandButton>
+                             </p:column>>
+                         </p:dataTable>
+                     </p:tab>
+
+
+                         <p:tab id="addTagsTab" title="Add Tags">
+                             <p:outputPanel id="tagData" >
+                                 <h:panelGrid columns="2">
+                                     <p:outputLabel for="tags" value="Tags: " />
+                                     <p:chips id="tags" addOnPaste="true" separator=","
+                                              value="#{tagsAddController.tags}"
+                                              style="width:80%"
+                                              placeholder="e.g italian, asian"/>
+                                 </h:panelGrid>
+                                 <p:commandButton id="saveTags"  value="Add"
+                                                  action="#{tagsAddController.doSaveTags}"
+                                                  update="tagTable @parent"/>
+                                 <p:commandButton value="Abort"
+                                                  style="margin-left:5px"
+                                                  onclick="PF('locationTags').hide()" />
+                             </p:outputPanel>
+                         </p:tab>
+
+                 </p:tabView>
+                 <h:panelGrid columns="3">
+
+                 </h:panelGrid>
+                 <p:commandButton value="Close" onclick="PF('locationTags').hide()"/>
+                 <p:ajax event="close" update=":locationForm:locationTable" />
+             </p:dialog>
+
+
+             <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="500">
+                <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+            </p:confirmDialog>
+            
+		</p:panel>
+		
+        </h:form>
+
+        
+    </ui:define>
+    
+    
+</ui:composition>

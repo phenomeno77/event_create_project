@@ -1,0 +1,154 @@
+<ui:composition xmlns="http://www.w3c.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:ng="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:th="https://www.thymeleaf.org"
+                xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+                template="/WEB-INF/templates/main.xhtml">
+    <h:head>
+        <title>create location</title>
+    </h:head>
+
+    <ui:define name="content">
+        <h:form>
+        <p:growl id="growlCreateLocation" sticky="false" showDetail="true" styleClass="ui-button-danger"/>
+        <p:messages/>
+        
+            <p:panel header="Location">
+  
+
+                <h:panelGrid id="grid" columns="3" cellpadding="5" styleClass="outerpanelgrid" width="100%"  columnClass="cc-width, cc-width">
+
+                    <h:panelGrid columns="2" cellpadding="10" styleClass="innerpanelgrid ">
+                        <p:outputLabel value="Name:*"/>
+                        <p:inputText value="#{locationAddController.location.locationName}" id="locationName"
+                                     required="true"
+                                     requiredMessage="Please enter an location name."
+                                     label="locationName">
+                        </p:inputText>
+
+                        <p:outputLabel value="Description:"/>
+                        <p:inputText value="#{locationAddController.location.description}" id="website" 
+                                     label="website"/>
+
+                        <p:outputLabel value="Menu-URL: "/>
+                        <p:inputText value="#{locationAddController.location.menuUrl}" id="menu" 
+                                     label="menu"/>
+
+                        <p:divider/> <p:divider/>
+
+                        <p:outputLabel value="Street*:"/>
+                        <p:inputText value="#{locationAddController.location.street}" id="street" required="true"
+                                     requiredMessage="Street required." label="street"/>
+
+
+                        <p:outputLabel value="House-Number*:"/>
+                        <p:inputText value="#{locationAddController.location.houseNumber}" id="houseNumber" required="true"
+                                     requiredMessage="House-Number required." label="houseNumber"/>
+
+                        <p:outputLabel value="PLZ*:"/>
+                        <p:inputText value="#{locationAddController.location.zipCode}" id="plz" required="true"
+                                     requiredMessage="PLZ required." label="plz"/>
+
+                        <p:outputLabel value="City*:"/>
+                        <p:inputText value="#{locationAddController.location.city}" id="city" required="true"
+                                     requiredMessage="City required." label="city"/>
+
+                        <p:outputLabel value="Country*:"/>
+                        <p:inputText value="#{locationAddController.location.country}" id="country" required="true"
+                                     requiredMessage="Country required." label="country"/>
+                    </h:panelGrid>
+
+                    <h:panelGrid columns="3" styleClass="innerpanelgrid" cellpadding="5">
+
+                        <p:outputLabel value="Opening Hours:* "/>
+
+                        <p:outputLabel value="from - to"/>
+                        <p:outputLabel value="from - to"/>
+
+
+                        <p:outputLabel value="MO"/>
+                        <p:inputMask id="mo1" value="#{locationAddController.hour}" mask="99:99 - 99:99"/>
+                        <p:inputMask id="mo2" value="#{locationAddController.hour}" mask="99:99 - 99:99"/>
+
+                        <p:outputLabel value="TUE"/>
+                        <p:inputMask id="tue1" value="#{locationAddController.hour}" mask="99:99 - 99:99"/>
+                        <p:inputMask id="tue2" value="#{locationAddController.hour}" mask="99:99 - 99:99"/>
+
+                        <p:outputLabel value="WED"/>
+                        <p:inputMask id="wed1" value="#{locationAddController.hour}" mask="99:99 - 99:99"/>
+                        <p:inputMask id="wed2" value="#{locationAddController.hour}" mask="99:99 - 99:99"/>
+
+                        <p:outputLabel value="THU"/>
+                        <p:inputMask id="thu1" value="#{locationAddController.hour}" mask="99:99 - 99:99"/>
+                        <p:inputMask id="thu2" value="#{locationAddController.hour}" mask="99:99 - 99:99"/>
+
+                        <p:outputLabel value="FRI"/>
+                        <p:inputMask id="fri1" value="#{locationAddController.hour}" mask="99:99 - 99:99"/>
+                        <p:inputMask id="fri2" value="#{locationAddController.hour}" mask="99:99 - 99:99"/>
+
+                        <p:outputLabel value="SAT"/>
+                        <p:inputMask id="sat1" value="#{locationAddController.hour}" mask="99:99 - 99:99"/>
+                        <p:inputMask id="sat2" value="#{locationAddController.hour}" mask="99:99 - 99:99"/>
+
+                        <p:outputLabel value="SUN"/>
+                        <p:inputMask id="sun1" value="#{locationAddController.hour}" mask="99:99 - 99:99"/>
+                        <p:inputMask id="sun2" value="#{locationAddController.hour}" mask="99:99 - 99:99"/>
+
+
+						<p:divider /> <p:divider /> <p:divider />
+                    </h:panelGrid>
+
+                    <h:panelGrid columns="4" styleClass="innerpanelgrid" cellpadding="5">
+                        <h:outputText value="Add New Tags"/>
+                        <p:chips id="tags"
+                                 addOnPaste="true" separator="," value="#{locationAddController.tags}"
+                                 placeholder="vegan, italian, japanese"
+                                 style="width:80%"  />
+
+                        <p:commandButton type="button" id="animate" icon="pi pi-info-circle"/>
+                        <p:tooltip for="animate" position="top"  showEffect="clip" hideEffect="fold">
+                            <h:outputText value="You can write the name of the Tag and confirm with ENTER."/>
+                            <br/>
+                            <h:outputText value="e.g. tag1 ENTER, tag2 ENTER."/>
+                            <br/>
+                            <h:outputText value="Or you can write all Tags eseperated by commas "/>
+                            <br/>
+                            <h:outputText value="e.g. tag1,tag2,tag3 and confirm with ENTER."/>
+                            <br/>
+                            <h:outputText value="Confirming with ENTER is not necessary, but it gives you a view"/>
+                            <br/>
+                            <h:outputText value="of the Tag."/>
+                            <br/>
+
+                        </p:tooltip>
+
+                        <h:outputText value="Tags List"/>
+                        <p:selectManyMenu id="advanced" value="#{locationAddController.selectedTags}"
+
+                                          var="tagList" filter="true" filterMatchMode="contains" showCheckbox="true" styleClass="manymenu-advanced">
+                            <f:selectItems value="#{tagsListController.allTags}" var="allTags" itemLabel="#{allTags.tagName}"
+                                           itemValue="#{tags}"/>
+
+                            <p:column>
+                                <span class="pi pi-tags"  style="width: 30px; height: 20px"/>
+                            </p:column>
+
+                            <p:column>
+                                <h:outputText value="#{tagList.tagName}"/>
+                            </p:column>
+                        </p:selectManyMenu>
+
+                    </h:panelGrid>
+
+
+
+                    <p:commandButton action="#{locationAddController.addNewLocation}"  update="growlCreateLocation" value="Save" icon="pi pi-save"/>
+				</h:panelGrid>
+            </p:panel>
+
+        </h:form>
+    </ui:define>
+</ui:composition>

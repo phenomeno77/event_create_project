@@ -1,0 +1,130 @@
+<ui:composition xmlns="http://www.w3c.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/templates/main.xhtml">
+    <ui:define name="content">
+        <h:form id="eventForm">
+            <p:growl id="msgs" showDetail="true"/>
+            <p:panel header="Welcome to Event Page #{sessionInfoBean.currentUserName}!">
+                <f:facet name="actions">
+                    <p:commandButton onclick="location.href='/events/createEvent.xhtml'" value="New Event" icon="pi pi-plus" title="New Event" style="margin-right: 5px"/>
+                    <p:commandButton onclick="location.href='/events/eventHistory.xhtml'"
+                                     value="History" icon="pi pi-replay" title="History"
+                                     style="margin-right: 5px" update=":eventForm"
+                                     rendered="#{sessionInfoBean.hasRole('USER')}"/>
+                    <p:commandButton action="#{autoInitEvents.initializeEvents}" value="Initialize Test-Event 1" update="@form"
+                                    rendered="#{sessionInfoBean.hasRole('ADMIN')}" style="margin-right: 5px">
+                        <p:confirm header="Confirmation" message="Event Creator: User1.
+                        By confirming an Event will be automatically initialized. All users are set to automatically accept
+                                    the invitation without confirming the email.No confirmation emails will be sent, only
+                                    if the event has been canceled or expired." icon="ui-icon-alert" />
+                    </p:commandButton>
+
+                    <p:commandButton action="#{autoInitEvents2.initializeEvents}" value="Initialize Test-Event 2" update="@form"
+                                     rendered="#{sessionInfoBean.hasRole('ADMIN')}">
+                        <p:confirm header="Confirmation" message="
+                        Event Creator: Admin.
+                        By confirming an Event will be automatically initialized. All users are set to automatically accept
+                                    the invitation without confirming the email.No confirmation emails will be sent, only
+                                    if the event has been canceled or expired." icon="ui-icon-alert" />
+                    </p:commandButton>
+                </f:facet>
+            
+
+            <p:dataTable id="eventTable" var="event" value="#{eventListController.eventInvitedUsers}"
+                         widgetVar="event" emptyMessage="There are no open Events at the moment!">
+                <p:column headerText="Event ID">
+                    <h:outputText value="#{event.eventId}"/>
+                </p:column>
+                <p:column headerText="Event Creator">
+                    <h:outputText value="#{event.user.username}"/>
+                </p:column>
+                <p:column headerText="Event Name">
+                    <h:outputText value="#{event.eventName}"/>
+                </p:column>
+                <p:column headerText="Invited Users">
+                    <ui:repeat var="invitedUsers" value="#{event.userInvited}">
+                        <h:outputText value=" #{invitedUsers.user.username} "/>
+                        <br/>
+                    </ui:repeat>
+                </p:column>
+                <p:column headerText="Locations">
+                    <ui:repeat var="locations" value="#{event.eventLocations}">
+                        <h:outputText value="#{locations.locationName}"/>
+                        <br/>
+                    </ui:repeat>
+                </p:column>
+                <p:column headerText="Voting End Time">
+                    <h:outputText value="#{event.votingExpiry}">
+                    <f:convertDateTime pattern="dd.MM.yyyy HH:mm" timeZone="Europe/Vienna"/>
+                    </h:outputText>
+                </p:column>
+                <p:column headerText="Status" >
+                    <h:outputText value="#{event.eventStatus}"/>
+                </p:column>
+
+
+                <p:column style="width:100;text-align: right">
+                   <p:commandButton value="Vote Now" style="margin-bottom: 15px" styleClass="rounded-button ui-button-help"
+                                    actionListener="#{votingSessionList.onVoteClick}" update=":eventForm:eventTable :eventForm:msgs">
+                       <f:attribute name="eventId" value="#{event.eventId}" />
+
+                   </p:commandButton>
+<br/>
+                    <p:commandButton action="#{eventDetailController.doCancelEvent}"
+                                     style="margin-right: 10px"
+                                     icon="pi pi-times" styleClass="rounded-button ui-button-danger ui-button-outlined"
+                                     title="Cancel Event" update=":eventForm:eventTable :eventForm:msgs"
+                                     rendered="#{event.user.username == sessionInfoBean.currentUserName}"
+                                     onstart="PF('statusDialogCancel').show()" onsuccess="PF('statusDialogCancel').hide()"
+                    >
+                        <f:setPropertyActionListener value="#{event}" target="#{eventDetailController.event}" />
+                        <p:confirm header="Confirmation"
+                                   message="Are you sure that you want to want to Cancel that Event?
+                                   Canceling that event will discard all Voting results and will alert all invited Users about it." icon="ui-icon-alert" />
+                    </p:commandButton>
+
+                    <p:commandButton action="#{eventDetailController.doEndEvent}"
+                                     value="End Event"
+                                      styleClass="rounded-button ui-button-warning"
+                                     title="End Event" update=":eventForm:eventTable :eventForm:msgs"
+                                     rendered="#{event.user.username == sessionInfoBean.currentUserName}"
+                                     onstart="PF('statusDialogEnd').show()" onsuccess="PF('statusDialogEnd').hide()"
+                    >
+                        <f:setPropertyActionListener value="#{event}" target="#{eventDetailController.event}" />
+                        <p:confirm header="Confirmation"
+                                   message="Are you sure that you want to want to End that Event before its time expires?
+                                   By ending that Event earlier all users will be notified about it." icon="ui-icon-alert" />
+                    </p:commandButton>
+
+               </p:column>
+           </p:dataTable>
+           <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
+               <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+               <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+           </p:confirmDialog>
+
+            <p:dialog widgetVar="statusDialogCancel" modal="true" draggable="false" closable="false" resizable="false" header="Canceling event in process">
+                <div class="p-text-center">
+                    <i class="pi pi-spin pi-spinner loading-icon" aria-hidden="true" ></i>
+                </div>
+            </p:dialog>
+
+            <p:dialog widgetVar="statusDialogEnd" modal="true" draggable="false" closable="false" resizable="false" header="Ending event in process">
+                <div class="p-text-center">
+                    <i class="pi pi-spin pi-spinner loading-icon" aria-hidden="true" ></i>
+                </div>
+            </p:dialog>
+            </p:panel>
+       </h:form>
+        <style type="text/css">
+        .loading-icon {
+       font-size: 3rem;
+       color: var(--primary-color);
+         position:center;
+    }
+</style>
+   </ui:define>
+</ui:composition>

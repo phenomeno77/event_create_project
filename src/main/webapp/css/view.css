@@ -1,0 +1,13 @@
+@charset "UTF-8";
+
+
+.ui-panelgrid>*>tr,
+.ui-panelgrid .ui-panelgrid-cell {
+    border: none;
+}
+
+.grey{
+   background-color:#a9a9a9;
+   fond-color: #424242;
+   background-image:none;
+}

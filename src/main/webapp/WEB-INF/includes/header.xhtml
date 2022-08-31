@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui" xml:lang="en">
+<body>
+<ui:composition>
+
+    <h:form id="headerForm">
+
+        <p:menubar>
+
+            <p:menuitem icon="pi pi-home" url="/secured/welcome.xhtml" rendered="#{sessionInfoBean.loggedIn}"/>
+
+            <p:menuitem icon="pi pi-user" url="/profile/profile.xhtml" rendered="#{sessionInfoBean.loggedIn}"/>
+
+            <p:menuitem value="My Events" url="/events/eventsHomepage.xhtml" rendered="#{sessionInfoBean.loggedIn}"/>
+
+            <p:menuitem value="All Events-Admin Action" url="/admin/allEvents.xhtml" rendered="#{sessionInfoBean.hasRole('ADMIN')}"/>
+
+            <p:menuitem value="Location" url="/location/locations.xhtml" rendered="#{sessionInfoBean.hasRole('ADMIN') || sessionInfoBean.hasRole('LOCATION_MANAGER')}"/>
+
+            <p:menuitem value="User" url="/admin/users.xhtml" rendered="#{sessionInfoBean.hasRole('ADMIN')}"/>
+
+            <p:menuitem value="Login" url="/login.xhtml" rendered="#{!sessionInfoBean.loggedIn}"/>
+
+            <p:menuitem   icon="pi pi-sign-out" url="/logout" rendered="#{sessionInfoBean.loggedIn}" />
+
+        </p:menubar>
+
+    </h:form>
+
+</ui:composition>
+</body>
+</html>

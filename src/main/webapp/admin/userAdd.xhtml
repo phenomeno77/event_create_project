@@ -1,0 +1,72 @@
+<ui:composition xmlns="http://www.w3c.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:ng="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:th="https://www.thymeleaf.org"
+                xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+                template="/WEB-INF/templates/main.xhtml">
+
+    <ui:define name ="content">
+        <h:form id="addNewUser" >
+
+            <p:growl id="msgs" showDetail="true"/>
+
+            <p:panel header="Add User" style="width: 400px">
+
+                <h:panelGrid columns="2">
+                    <p:outputLabel for="username" value="Username:"/>
+                    <p:inputText id="username" value="#{userAddController.user.username}" required="true"
+                                 label="username"
+                                 requiredMessage="Username is required."
+                                    update=":addNewUser:msgs"
+                                    >
+                    <f:validateLength minimum="5"/>
+                    </p:inputText>
+                    <p:outputLabel for="password" value="Password:"  />
+                    <p:password id="password" value="#{userAddController.password}" label="Password"
+                                required="true"
+                                requiredMessage="Password is required."/>
+
+                    <p:outputLabel for="email" value="Email:" />
+                    <p:inputText id="email" value="#{userAddController.user.email}" required="true"
+                                 validatorMessage="Invalid email format"
+                                 requiredMessage="Email is required."
+                                 update=":addNewUser:msgs :addUser">
+                        <f:validateRegex
+                                pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$"/>
+                    </p:inputText>
+                    </h:panelGrid>
+                        <p:separator />
+                <h:panelGrid columns="2" >
+                    <p:outputLabel value="FirstName:" style="margin-right:14px"/>
+                    <p:inputText id="firstName" value="#{userAddController.user.firstName}" label="FirstName"/>
+
+                    <p:outputLabel value="LastName:"/>
+                    <p:inputText id="lastName" value="#{userAddController.user.lastName}"/>
+                </h:panelGrid>
+
+                <p:separator />
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="Roles: " style="margin-right:45px"/>
+                    <p:selectManyCheckbox id="grid3" value="#{userAddController.selectedRoles}"
+                                          styleClass="grid-checkbox" columns="1" layout="grid">
+                        <f:selectItem itemLabel="Admin" itemValue="ADMIN"/>
+                        <f:selectItem itemLabel="Location Manager" itemValue="LOCATION_MANAGER"/>
+                        <f:selectItem itemLabel="User" itemValue="USER"/>
+                    </p:selectManyCheckbox>
+                    <br/>
+                </h:panelGrid>
+                <p:separator />
+
+
+                                <h:panelGrid columns="2" >
+                                    <p:commandButton id="addUser" action="#{userAddController.doSaveUser}" value="Add User"
+                                                      update="@form" style="margin-left:93px"
+                                                        />
+                                </h:panelGrid>
+                            </p:panel>
+                        </h:form>
+                    </ui:define>
+                </ui:composition>

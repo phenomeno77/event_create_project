@@ -1,0 +1,97 @@
+<ui:composition xmlns="http://www.w3c.org/1999/xhtml" xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui" template="/WEB-INF/templates/main.xhtml">
+    <ui:define name="content">
+        <h:form id="eventAdminForm">
+            <p:panel header="Welcome to Admins Action Page!">
+                <f:facet name="actions">
+                    <p:commandButton onclick="location.href='../secured/welcome.xhtml'" value="Go Back" icon="pi pi-angle-left" title="Back" style="margin-right: 5px"/>
+                </f:facet>
+            
+            <p:dataTable id="eventTable" var="event" value="#{eventListController.allEvents}" widgetVar="event" emptyMessage="There are no open Events at the moment!">
+
+                <p:column headerText="Event ID" sortBy="#{event.eventId}" filterBy="#{event.eventId}" filterMatchMode="contains">
+                    <h:outputText value="#{event.eventId}"/>
+                </p:column>
+                <p:column headerText="Event Creator" sortBy="#{event.user.username}" filterBy="#{event.user.username}" filterMatchMode="contains">
+                    <h:outputText value="#{event.user.username}"/>
+                </p:column>
+                <p:column headerText="Event Name" sortBy="#{event.eventName}" filterBy="#{event.eventName}" filterMatchMode="contains">
+                    <h:outputText value="#{event.eventName}"/>
+                </p:column>
+                <p:column headerText="Invited Users" sortBy="#{event.userInvited}" filterBy="#{event.userInvited}" filterMatchMode="contains">
+                    <ui:repeat var="invitedUsers" value="#{event.userInvited}">
+                        <h:outputText value=" #{invitedUsers.user.username} "/>
+                        <br/>
+                    </ui:repeat>
+                </p:column>
+                <p:column headerText="Locations" sortBy="#{event.eventLocations}" filterBy="#{event.eventLocations}" filterMatchMode="contains">
+                    <ui:repeat var="locations" value="#{event.eventLocations}">
+                        <h:outputText value="#{locations.locationName}"/>
+                        <br></br>
+                    </ui:repeat>
+                </p:column>
+                <p:column headerText="Voting End Time" sortBy="#{event.votingExpiry}" filterBy="#{event.votingExpiry}" filterMatchMode="contains">
+                    <h:outputText value="#{event.votingExpiry}"/>
+                </p:column>
+                <p:column headerText="Status" sortBy="#{event.eventStatus}" filterBy="#{event.eventStatus}" filterMatchMode="contains">
+                    <h:outputText value="#{event.eventStatus}"/>
+                </p:column>
+                <p:column headerText="Final Results" sortBy="#{event.eventLocationWinner} #{event.eventTimeslotWinner}"
+                          filterBy="#{event.eventLocationWinner} #{event.eventTimeslotWinner}" >
+                    <h:outputText value="#{eventDetailController.getVotingResults(event)}"
+                                  rendered="#{event.eventStatus == 'Expired'}"/>
+
+                </p:column>
+                <p:column style="width:100;text-align: right">
+                    <p:commandButton action="#{eventDetailController.doCancelEvent}"
+                                     icon="pi pi-times" styleClass="rounded-button ui-button-danger"
+                                     rendered="#{event.active}"
+                                     title="Cancel Event" update=":eventAdminForm:eventTable"
+                                     onstart="PF('statusDialogCancel').show()" onsuccess="PF('statusDialogCancel').hide()"
+                    >
+                        <f:setPropertyActionListener value="#{event}" target="#{eventDetailController.event}" />
+                        <p:confirm header="Confirmation" message="Are you sure that you want to want to Cancel that Event?
+                        Canceling that event will discard all Voting results and will alert all invited Users about it." icon="ui-icon-alert" />
+                    </p:commandButton>
+                    <p:commandButton action="#{eventDetailController.doEndEvent}"
+                                     value="End Event"
+                                     rendered="#{event.active}"
+                                     style="margin-left:5px"
+                                     styleClass="rounded-button ui-button-warning"
+                                     title="End Event" update=":eventAdminForm:eventTable"
+                                     onstart="PF('statusDialogEnd').show()" onsuccess="PF('statusDialogEnd').hide()"
+                    >
+                        <f:setPropertyActionListener value="#{event}" target="#{eventDetailController.event}" />
+                        <p:confirm header="Confirmation"
+                                   message="Are you sure that you want to want to End that Event before its time expires?
+                                   By ending that Event earlier all users will be notified about it." icon="ui-icon-alert" />
+                    </p:commandButton>
+                </p:column>
+            </p:dataTable>
+
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
+                <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+            </p:confirmDialog>
+
+            <p:dialog widgetVar="statusDialogCancel" modal="true" draggable="false" closable="false" resizable="false" header="Canceling event in process">
+                <div class="p-text-center">
+                    <i class="pi pi-spin pi-spinner loading-icon" aria-hidden="true" ></i>
+                </div>
+            </p:dialog>
+
+            <p:dialog widgetVar="statusDialogEnd" modal="true" draggable="false" closable="false" resizable="false" header="Ending event in process">
+                <div class="p-text-center">
+                    <i class="pi pi-spin pi-spinner loading-icon" aria-hidden="true" ></i>
+                </div>
+            </p:dialog>
+            </p:panel>
+        </h:form>
+        <style type="text/css">
+        .loading-icon {
+       font-size: 3rem;
+       color: var(--primary-color);
+         position:center;
+    }
+</style>
+    </ui:define>
+</ui:composition>

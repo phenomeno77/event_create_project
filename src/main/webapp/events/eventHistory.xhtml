@@ -1,0 +1,239 @@
+<ui:composition xmlns="http://www.w3c.org/1999/xhtml" xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui" template="/WEB-INF/templates/main.xhtml">
+    <ui:define name="content">
+        <script type="text/javascript" src="https://maps.google.com/maps/api/js?key=AIzaSyA-xQph38wImMsXL7anVuIPLWC6xac-6kA"></script>
+        <script type="text/javascript">
+    function geocode() {
+			    const locationActions = document.querySelectorAll('.location__btn');
+
+			    locationActions.forEach(function (action, index) {
+			      console.log(action)
+			    	  action.addEventListener('click', function(event) {
+			    		  let value = '';
+			    		  const parent = event.target.closest('.ui-widget-content');
+			    		  console.log('parent', parent)
+			    		  value = parent.querySelector('.location__address').textContent;
+			    		  console.log('value', value)
+
+
+			        PF('geoMap').geocode(value);
+			    	PF('dlg').show();
+			      })
+		    	})
+    }
+    	document.addEventListener("DOMContentLoaded", function() {
+    	 geocode();
+    	})
+
+	</script>
+        <h:form id="eventHistoryForm">
+            <p:growl id="msgs" showDetail="true"/>
+
+            <p:panel header="Welcome to Event your History page #{sessionInfoBean.currentUserName}!">
+                <f:facet name="actions">
+                    <p:commandButton onclick="location.href='/events/eventsHomepage.xhtml'" value="Go Back" icon="pi pi-angle-left" title="Back" style="margin-right: 5px"/>
+                </f:facet>
+            <h2>Active Events</h2>
+        <p:dataTable id="eventHistoryActive" var="eventActive" value="#{eventListController.eventInvitedUsers}"
+                     widgetVar="eventActive"
+                     sortMode="multiple"
+                     emptyMessage="There are not active Events at the moment.">
+            <p:column headerText="Event ID"  sortBy="#{eventActive.eventId}" filterBy="#{eventActive.eventId}" filterMatchMode="contains">
+                <h:outputText value="#{eventActive.eventId}"/>
+            </p:column>
+            <p:column headerText="Event Creator" sortBy="#{eventActive.user.username}" filterBy="#{eventActive.user.username}" filterMatchMode="contains">
+                <h:outputText value="#{eventActive.user.username}"/>
+            </p:column>
+            <p:column headerText="Event Name" sortBy="#{eventActive.eventName}" filterBy="#{eventActive.eventName}" filterMatchMode="contains">
+                <h:outputText value="#{eventActive.eventName}"/>
+            </p:column>
+            <p:column headerText="Invited Users" sortBy="#{eventActive.userInvited}" filterBy="#{eventActive.userInvited}" filterMatchMode="contains" >
+                <ui:repeat var="invitedUsers" value="#{eventActive.userInvited}">
+                    <h:outputText value=" #{invitedUsers.user.username} "/>
+                    <br></br>
+                </ui:repeat>
+            </p:column>
+            <p:column headerText="Locations" sortBy="#{eventActive.eventLocations}" filterBy="#{eventActive.eventLocations}" filterMatchMode="contains" >
+                <ui:repeat var="locations" value="#{eventActive.eventLocations}">
+                    <h:outputText value="#{locations.locationName}"/>
+                    <br></br>
+                </ui:repeat>
+            </p:column>
+            <p:column headerText="Voting End Time" sortBy="#{eventActive.votingExpiry}" filterBy="#{eventActive.votingExpiry}" filterMatchMode="contains">
+                <h:outputText value="#{eventActive.votingExpiry}"/>
+            </p:column>
+            <p:column headerText="Status" sortBy="#{event.eventStatus}" filterBy="#{event.eventStatus}" filterMatchMode="contains" >
+                <h:outputText value="#{eventActive.active? 'Active' : 'Not Active'}"/>
+            </p:column>
+        </p:dataTable>
+
+            <h2>Non-Active Events</h2>
+            <p:dataTable id="eventHistory" var="event" value="#{eventListController.eventInvitedUsersHistory}"
+                         widgetVar="event"
+                         sortMode="multiple"
+                         emptyMessage="There are not non-active Events at the moment.">
+                <p:column headerText="Event ID" sortBy="#{event.eventId}" filterBy="#{event.eventId}" filterMatchMode="contains">
+                    <h:outputText value="#{event.eventId}" sortBy="#{eventActive.user.username}" filterBy="#{eventActive.user.username}" filterMatchMode="contains"/>
+                </p:column>
+                <p:column headerText="Event Creator" sortBy="#{event.user.username}" filterBy="#{event.user.username}" filterMatchMode="contains">
+                    <h:outputText value="#{event.user == null ? 'User not found.' : event.user.username}"
+                             />
+                </p:column>
+
+                <p:column headerText="Event Name" sortBy="#{event.eventName}" filterBy="#{event.eventName}" filterMatchMode="contains">
+                    <h:outputText value="#{event.eventName}"/>
+                </p:column>
+                <p:column headerText="Invited Users" sortBy="#{event.userInvited}" filterBy="#{event.userInvited}" filterMatchMode="contains">
+                    <ui:repeat var="invitedUsers" value="#{event.userInvited}">
+                        <h:outputText value=" #{invitedUsers.user.username} "/>
+                        <br></br>
+                    </ui:repeat>
+                </p:column>
+                <p:column headerText="Locations" sortBy="#{event.eventLocations}" filterBy="#{event.eventLocations}" filterMatchMode="contains">
+                    <ui:repeat var="locations" value="#{event.eventLocations}">
+                        <h:outputText value="#{locations.locationName}"/>
+                        <br></br>
+                    </ui:repeat>
+                </p:column>
+                <p:column headerText="Voting End Time" sortBy="#{event.votingExpiry}" filterBy="#{event.votingExpiry}" filterMatchMode="contains">
+                    <h:outputText value="#{event.votingExpiry}"/>
+                </p:column>
+                <p:column headerText="Status" sortBy="#{event.eventStatus}" filterBy="#{event.eventStatus}" filterMatchMode="contains" >
+                    <h:outputText value="#{event.eventStatus}"/>
+                </p:column>
+                <p:column headerText="Final Results" sortBy="#{event.eventLocationWinner} #{event.eventTimeslotWinner}"
+                          filterBy="#{event.eventLocationWinner} #{event.eventTimeslotWinner}"
+                          filterMatchMode="contains">
+                    <h:outputText escape="false" value="#{eventDetailController.getWinnerLocation(event) == null and eventDetailController.getVotingResults(event) != 'No results found.'
+                     ? 'Location not found.' : eventDetailController.getVotingResults(event)}"
+                        rendered="#{event.eventStatus == 'Expired'}"/>
+
+                    <br/><br/>
+
+                    <h:outputText id="gaddr"
+                                  class="location__address"
+                                  value="#{eventDetailController.getWinnerLocation(event).street} #{eventDetailController.getWinnerLocation(event).houseNumber},
+                                              #{eventDetailController.getWinnerLocation(event).zipCode} #{eventDetailController.getWinnerLocation(event).city}"
+                                  rendered="#{event.eventStatus == 'Expired' and eventDetailController.getVotingResults(event) != 'No results found.'
+                                                and eventDetailController.getWinnerLocation(event) != null}"/>
+                </p:column>
+
+                <p:column headerText="View Location Details">
+                    <p:commandButton update=":eventHistoryForm:locationDetails"  icon="pi pi-exclamation-triangle" styleClass="ui-button-warning" title="Warning Message"
+                                     style="margin-right: 5px"
+                                     rendered="#{eventDetailController.getWinnerLocation(event).locationStatus == 'Closed'
+                                     and eventDetailController.getVotingResults(event).contains(eventDetailController.getWinnerLocation(event).locationName)}">
+                        <p:confirm header="Location Closed"
+                                   message="Dear User, the Status of that Location has been set to Closed.
+                                 For more informations, please contact the Location Manager." icon="ui-icon-alert" />
+                    </p:commandButton>
+
+                    <p:commandButton update=":eventHistoryForm:locationDetails"  icon="pi pi-exclamation-triangle" styleClass="ui-button-danger" title="Warning Message"
+                                     style="margin-right: 5px" rendered="#{eventDetailController.getWinnerLocation(event).locationStatus == 'Removed'
+                                     and eventDetailController.getVotingResults(event).contains(eventDetailController.getWinnerLocation(event).locationName)}">
+                        <p:confirm header="Location Not Available."
+                                   message="Dear User, that Location is not anymore available.
+                                    For more informations, please contact the Location Manager." icon="ui-icon-alert" />
+                    </p:commandButton>
+
+                    <p:commandButton update=":eventHistoryForm:locationDetails"  icon="pi pi-exclamation-triangle" styleClass="ui-button-danger" title="Warning Message"
+                                     style="margin-right: 5px"
+                                     rendered="#{eventDetailController.getWinnerLocation(event) == null
+                                     and eventDetailController.getVotingResults(event) != 'No results found.'}">
+                        <p:confirm header="Location Removed."
+                                   message="Dear User, that Location has been completely removed from our application.
+                                    For more informations, please contact the Location Manager." icon="ui-icon-alert" />
+                    </p:commandButton>
+
+                    <p:commandButton update=":eventHistoryForm:locationDetails"  icon="pi pi-exclamation-triangle" styleClass="ui-button-danger" title="Warning Message"
+                                     style="margin-right: 5px"
+                                     rendered="#{eventDetailController.getVotingResults(event) == 'No results found.' and event.eventStatus != 'Canceled'}">
+                        <p:confirm header="Warning"
+                                   message="Dear User, the chosen Locations for that Event may be Closed or Removed
+                                    while the Voting Event was running. Please contact the Location Manager for more informations." icon="ui-icon-alert" />
+                    </p:commandButton>
+
+
+                    <p:commandButton update=":eventHistoryForm:locationDetails" oncomplete="PF('locationDetails').show()" icon="pi pi-search" title="View Location Details"
+                                     disabled="#{eventDetailController.getWinnerLocation(event).locationStatus == 'Removed'}"
+                                     rendered="#{event.votingDone
+                                     and eventDetailController.getVotingResults(event) != 'No results found.'
+                                     and eventDetailController.getWinnerLocation(event) != null}">
+                        <f:setPropertyActionListener value="#{event}" target="#{eventDetailController.event}" />
+                    </p:commandButton>
+                    <br/>
+                    <p:commandButton id="btn" type="button" class="location__btn" icon="pi pi-globe" value="G-Map" style="margin-top: 10px"
+                                     disabled="#{eventDetailController.getWinnerLocation(event).locationStatus == 'Removed'}"
+                                     rendered="#{event.votingDone
+                                     and eventDetailController.getVotingResults(event) != 'No results found.'
+                                     and eventDetailController.getWinnerLocation(event) != null}"/>
+                </p:column>
+            </p:dataTable>
+
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
+                <p:commandButton value="Close" type="button" styleClass="ui-confirmdialog-yes"/>
+            </p:confirmDialog>
+
+            <p:dialog id="locationDetails" header="Location Details" showEffect="fade" modal="true" widgetVar="locationDetails" responsive="true">
+                <p:outputPanel id="locationDetailsView" class="ui-fluid" rendered="#{not empty eventDetailController.event}">
+                    <p:tabView widgetVar="tabview" id="tabview">
+
+                        <p:tab id="description" title="Location Description">
+                            <h:panelGrid columns="2">
+                                <h:outputLabel for="locationDescription" value="Description: " />
+                                <p:inputTextarea id="locationDescription" value="#{eventDetailController.winnerLocation.description}" disabled="true"/>
+                            </h:panelGrid>
+                        </p:tab>
+
+                        <p:tab id="foodTags" title="Food Tags">
+                        <h:panelGrid columns="2">
+                        <ui:repeat var="locationTags" value="#{eventDetailController.winnerLocation.locationTags}">
+                            <i class="pi pi-tags"/><h:outputText value="  #{locationTags.tagName}" style="white-space:pre;"/>
+                            <br></br>
+                        </ui:repeat>
+                        </h:panelGrid>
+                        </p:tab>
+
+                        <p:tab id="menuUrl" title="Link to Menu" >
+                            <h:outputText  value="No URL to Menu found." rendered="#{eventDetailController.winnerLocation.menuUrl == null}" />
+                            <h:panelGrid columns="2" rendered="#{eventDetailController.winnerLocation.menuUrl != null}">
+                                <h:outputText  value="Check our Menu here:  " />
+                                <h:outputLink value="//#{eventDetailController.winnerLocation.menuUrl}">
+                                    <h:outputText value=" Menu"/>
+                                </h:outputLink>
+
+                            </h:panelGrid>
+                        </p:tab>
+
+                        <p:tab id="openingHours" title="Opening Hours">
+                            <h:panelGrid columns="2">
+                                <div style="display: inline-block; margin-left: 5%; vertical-align: top;">
+                                    <ui:repeat  var="openingHr" value="#{locationListController.getOpeningHours(eventDetailController.winnerLocation)}">
+                                        <h:outputText value="#{openingHr}"
+                                                      style="white-space:pre;">
+                                        </h:outputText>
+                                        <br/>
+                                        <br/>
+                                    </ui:repeat>
+
+                                </div>
+                            </h:panelGrid>
+                        </p:tab>
+
+                    </p:tabView >
+                </p:outputPanel>
+                <f:facet name="footer">
+                    <p:commandButton value="Close Details" icon="pi pi-times" onclick="PF('locationDetails').hide()" class="ui-button-secondary"/>
+                </f:facet>
+            </p:dialog>
+
+            <p:dialog id="gmapDialog" widgetVar="dlg" width="625" height="400" modal="true">
+                <p:gmap id="geoGmap" widgetVar="geoMap" center="#{locationMapController.centerGeoMap}" zoom="12" type="ROADMAP"
+                        model="#{locationMapController.geoModel}" style="width:100%;height:400px" >
+                    <p:ajax event="geocode" listener="#{locationMapController.onGeocode}" update="@this"/>
+                </p:gmap>
+            </p:dialog>
+            </p:panel>
+
+        </h:form>
+    </ui:define>
+</ui:composition>
