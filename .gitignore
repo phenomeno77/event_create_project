@@ -4,5 +4,6 @@
 /.settings/
 /.project
 **/.idea
+.m2
 .idea
 /src/main/webapp/WEB-INF/.faces-config.xml.jsfdia
